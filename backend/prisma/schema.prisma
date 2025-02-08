@@ -12,3 +12,35 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Product {
+  id    String @id @default(uuid())
+  nombre String
+  sku   String @unique
+  precio Float
+  stock Int
+  movements InventoryMovement[]
+}
+
+model InventoryMovement {
+  id        String @id @default(uuid())
+  tipo      String
+  cantidad  Int
+  fecha     DateTime @default(now())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Notification {
+  id              String @id @default(uuid())
+  productId       String
+  cantidadRestante Int
+  fechaRegistro   DateTime @default(now())
+}
+
+model User {
+  id       String @id @default(uuid())
+  username String @unique
+  password String
+  role     String @default("admin")
+}
