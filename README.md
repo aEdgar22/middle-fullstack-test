@@ -18,8 +18,8 @@ Este proyecto es ideal para empresas que necesitan un sistema robusto y escalabl
 
 1. Clonar el Repositorio
 
-git clone https://github.com/tu-usuario/mi-repositorio.git
-cd mi-repositorio
+git clone https://github.com/aEdgar22/middle-fullstack-test.git
+cd middle-fullstack-test
 
 2. Instalar Dependencias
 **Backend**
