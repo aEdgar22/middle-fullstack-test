@@ -3,7 +3,7 @@ import api from "../../api/api";
 
 interface InventoryMovement {
   id: string;
-  producto_id: string;
+  productId: string;
   tipo: "entrada" | "salida";
   cantidad: number;
   fecha: string;
@@ -23,10 +23,10 @@ const initialState: InventoryState = {
 
 export const updateStock = createAsyncThunk<
   InventoryMovement,
-  { producto_id: string; tipo: "entrada" | "salida"; cantidad: number }
+  { productId: string; tipo: "entrada" | "salida"; cantidad: number }
 >("inventory/updateStock", async (movement, { rejectWithValue }) => {
   try {
-    const response = await api.post<InventoryMovement>("/inventory/move", movement);
+    const response = await api.post<InventoryMovement>("/inventory/movements", movement);
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data || "Error updating stock");

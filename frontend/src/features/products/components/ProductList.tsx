@@ -8,11 +8,13 @@ import {
 import styled from "styled-components";
 import { IProduct } from "../interfaces/Product.interface";
 import EditProductModal from "./EditProductModal";
+import { useNavigate } from "react-router-dom";
 
 const ProductList: React.FC = () => {
   const products = useSelector((state: RootState) => state.products.items);
   const dispatch = useDispatch<AppDispatch>();
   const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
+  const navigate = useNavigate();
 
   const handleEdit = (product: IProduct) => {
     setSelectedProduct(product);
@@ -21,6 +23,11 @@ const ProductList: React.FC = () => {
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+
+  const handleMovement = (product: IProduct) => {
+    navigate(`/inventory/${product.id}`, { state: product });
+  };
 
   return (
     <ListContainer>
@@ -52,6 +59,12 @@ const ProductList: React.FC = () => {
                 </Td>
 
                 <Td>
+                  <MovementButton onClick={() => handleMovement(product)}>
+                    Registrar Movimiento
+                  </MovementButton>
+                </Td>
+
+                <Td>
                   <DeleteButton
                     onClick={() => {
                       if (product.id) {
@@ -80,7 +93,6 @@ const ProductList: React.FC = () => {
 
 export default ProductList;
 
-// 📌 Styled Components
 const ListContainer = styled.div`
   margin-top: 20px;
 `;
@@ -135,5 +147,18 @@ const EditButton = styled.button`
 
   &:hover {
     background-color: #e0a800;
+  }
+`;
+
+const MovementButton = styled.button`
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #138496;
   }
 `;
