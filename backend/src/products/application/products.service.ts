@@ -5,7 +5,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { Product } from '../domain/entities/product.entity';
 import { createProductDto } from '../domain/dtos/create-product.dto';
 import { updateProductDto } from '../domain/dtos/update-product.dto';

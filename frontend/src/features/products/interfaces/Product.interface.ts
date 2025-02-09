@@ -3,7 +3,7 @@ export interface IProduct {
     sku: string;
     nombre: string;
     precio: number;
-    stock: number;
+    stock?: number;
     
   }
   

@@ -1,12 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store";
-import { deleteProduct, fetchProducts } from "../../../features/products/productsSlice";
+import {
+  deleteProduct,
+  fetchProducts,
+} from "../../../features/products/productsSlice";
 import styled from "styled-components";
+import { IProduct } from "../interfaces/Product.interface";
+import EditProductModal from "./EditProductModal";
 
 const ProductList: React.FC = () => {
   const products = useSelector((state: RootState) => state.products.items);
   const dispatch = useDispatch<AppDispatch>();
+  const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
+
+  const handleEdit = (product: IProduct) => {
+    setSelectedProduct(product);
+  };
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -36,14 +46,33 @@ const ProductList: React.FC = () => {
                 <Td>${product.precio}</Td>
                 <Td>{product.stock}</Td>
                 <Td>
-                  {/* <DeleteButton onClick={() => dispatch(deleteProduct(product.id))}>
+                  <EditButton onClick={() => handleEdit(product)}>
+                    Editar
+                  </EditButton>
+                </Td>
+
+                <Td>
+                  <DeleteButton
+                    onClick={() => {
+                      if (product.id) {
+                        dispatch(deleteProduct(product.id));
+                      }
+                    }}
+                  >
                     Eliminar
-                  </DeleteButton> */}
+                  </DeleteButton>
                 </Td>
               </tr>
             ))}
           </tbody>
         </Table>
+      )}
+
+      {selectedProduct && (
+        <EditProductModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
       )}
     </ListContainer>
   );
@@ -93,5 +122,18 @@ const DeleteButton = styled.button`
 
   &:hover {
     background-color: #c82333;
+  }
+`;
+
+const EditButton = styled.button`
+  background-color: #ffc107;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #e0a800;
   }
 `;
