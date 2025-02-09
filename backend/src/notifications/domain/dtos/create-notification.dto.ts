@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsNotEmpty, IsDate } from 'class-validator';
 
 export class CreateNotificationDto {
   @IsString()
@@ -8,4 +8,9 @@ export class CreateNotificationDto {
   @IsNumber()
   @IsNotEmpty()
   cantidadRestante: number;
+
+  
+
+  @IsDate()
+  fechaRegistro: Date;
 }

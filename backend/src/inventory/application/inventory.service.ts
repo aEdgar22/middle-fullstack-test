@@ -7,10 +7,11 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { InventoryMovement } from '../domain/entities/inventory-movement.entity';
 import { CreateInventoryMovementDto } from '../domain/dtos/create-inventory-movement.dto';
+import { NotificationsService } from 'src/notifications/application/notifications.service';
 
 @Injectable()
 export class InventoryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private notificationsService: NotificationsService, ) {}
 
   async registerMovement(movementDto: CreateInventoryMovementDto): Promise<InventoryMovement> {
     const { productId, cantidad, tipo } = movementDto;
@@ -37,14 +38,16 @@ export class InventoryService {
         where: { id: productId },
         data: { stock: newStock },
       });
+
+      await this.notificationsService.checkAndNotifyStock(productId, newStock)
   
       return { ...createdMovement, tipo: createdMovement.tipo as 'entrada' | 'salida' };
       
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
-        throw error; // 📌 Mantener los errores específicos
+        throw error; 
       }
-      console.error('Inventory Movement Error:', error); // 👀 Log para depuración
+      console.error('Inventory Movement Error:', error); 
       throw new InternalServerErrorException('Unexpected error processing inventory movement');
     }
   }
