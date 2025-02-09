@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createProduct } from "../../../features/products/productsSlice";
 import styled from "styled-components";
-import { AppDispatch } from "../../../store/store";
+import { AppDispatch, RootState } from "../../../store/store";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CreateProductForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const products = useSelector((state: RootState) => state.products.items);
   const [formData, setFormData] = useState({
     nombre: "",
     sku: "",
@@ -19,13 +22,27 @@ const CreateProductForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.nombre || !formData.sku || !formData.precio || !formData.stock) return;
-    
-    dispatch(createProduct({
-      ...formData,
-      precio: Number(formData.precio),
-      stock: Number(formData.stock),
-    }));
+    if (
+      !formData.nombre ||
+      !formData.sku ||
+      !formData.precio ||
+      !formData.stock
+    )
+      return;
+
+    const skuExists = products.some((product) => product.sku === formData.sku);
+    if (skuExists) {
+      toast.error("El SKU ya está en uso. Usa uno diferente.");
+      return;
+    }
+
+    dispatch(
+      createProduct({
+        ...formData,
+        precio: Number(formData.precio),
+        stock: Number(formData.stock),
+      })
+    );
 
     setFormData({ nombre: "", sku: "", precio: "", stock: "" });
   };
@@ -33,10 +50,38 @@ const CreateProductForm: React.FC = () => {
   return (
     <FormContainer onSubmit={handleSubmit}>
       <Title>Agregar Producto</Title>
-      <Input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
-      <Input type="text" name="sku" placeholder="SKU" value={formData.sku} onChange={handleChange} required />
-      <Input type="number" name="precio" placeholder="Precio" value={formData.precio} onChange={handleChange} required />
-      <Input type="number" name="stock" placeholder="Stock" value={formData.stock} onChange={handleChange} required />
+      <Input
+        type="text"
+        name="nombre"
+        placeholder="Nombre"
+        value={formData.nombre}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        type="text"
+        name="sku"
+        placeholder="SKU"
+        value={formData.sku}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        type="number"
+        name="precio"
+        placeholder="Precio"
+        value={formData.precio}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        type="number"
+        name="stock"
+        placeholder="Stock"
+        value={formData.stock}
+        onChange={handleChange}
+        required
+      />
       <Button type="submit">Crear Producto</Button>
     </FormContainer>
   );
@@ -76,7 +121,7 @@ const Button = styled.button`
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  
+
   &:hover {
     background-color: #0056b3;
   }
