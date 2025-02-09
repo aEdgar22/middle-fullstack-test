@@ -1,28 +1,28 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../api/api";
+import { IProduct } from "../products/interfaces/Product.interface";
 
-// 📌 Tipo para una notificación de stock bajo
 interface Notification {
   id: string;
-  producto_id: string;
-  cantidad_restante: number;
-  fecha_registro: string;
+  productId: string;
+  cantidadRestante: number;
+  fechaRegistro: string;
 }
 
-// 📌 Estado inicial tipado
 interface NotificationsState {
   list: Notification[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  products: Record<string, IProduct>;
 }
 
 const initialState: NotificationsState = {
   list: [],
   status: "idle",
   error: null,
+  products: {},
 };
 
-// 📌 AsyncThunk para obtener notificaciones
 export const fetchNotifications = createAsyncThunk<Notification[]>(
   "notifications/fetchNotifications",
   async (_, { rejectWithValue }) => {
@@ -35,13 +35,12 @@ export const fetchNotifications = createAsyncThunk<Notification[]>(
   }
 );
 
-// 📌 AsyncThunk para registrar una notificación de stock bajo
-export const createStockAlert = createAsyncThunk<Notification, { producto_id: string; cantidad_restante: number }>(
+export const createStockAlert = createAsyncThunk<Notification, { productId: string; cantidad_restante: number }>(
   "notifications/createStockAlert",
-  async ({ producto_id, cantidad_restante }, { rejectWithValue }) => {
+  async ({ productId, cantidad_restante }, { rejectWithValue }) => {
     try {
       const response = await api.post<Notification>("/notifications", {
-        producto_id,
+        productId,
         cantidad_restante,
       });
       return response.data;
@@ -51,14 +50,24 @@ export const createStockAlert = createAsyncThunk<Notification, { producto_id: st
   }
 );
 
-// 📌 Slice tipado
+export const fetchProductById = createAsyncThunk<IProduct, string>(
+  "notifications/fetchProductById",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const response = await api.get<IProduct>(`/products/${productId}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Error fetching product");
+    }
+  }
+);
+
 const notificationsSlice = createSlice({
   name: "notifications",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // 📌 Fetch Notifications
       .addCase(fetchNotifications.pending, (state) => {
         state.status = "loading";
       })
@@ -71,13 +80,22 @@ const notificationsSlice = createSlice({
         state.error = action.payload as string || "Unknown error";
       })
 
-      // 📌 Create Stock Alert
       .addCase(createStockAlert.fulfilled, (state, action: PayloadAction<Notification>) => {
         state.list.push(action.payload);
       })
       .addCase(createStockAlert.rejected, (state, action) => {
         state.error = action.payload as string || "Unknown error";
+      })
+      
+      
+      .addCase(fetchProductById.fulfilled, (state, action: PayloadAction<IProduct>) => {
+        const product = action.payload;
+        if (product.id) { // ✅ Verifica que `id` no sea undefined
+          state.products[product.id] = product;
+        }
       });
+      
+      
   },
 });
 
